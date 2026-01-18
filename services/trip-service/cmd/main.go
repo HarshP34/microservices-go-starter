@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	// h "ride-sharing/services/trip-service/internal/infrastructure/http"
+	"ride-sharing/services/trip-service/internal/infrastructure/events"
 	"ride-sharing/services/trip-service/internal/infrastructure/grpc"
 	"ride-sharing/services/trip-service/internal/infrastructure/repository"
 	"ride-sharing/services/trip-service/internal/service"
@@ -53,7 +54,7 @@ func main() {
 	defer rabbitmq.Close()
 
 	log.Println("Starting RabbitMQ connection")
-
+	publisher := events.NewTripEventPublisher(rabbitmq)
 	grpcServer := grpcserver.NewServer();
 
 	log.Printf("Starting grpc server trip service on port: %s", lis.Addr().String())
@@ -65,7 +66,7 @@ func main() {
 		}
 	}()
 
-	grpc.NewGRPCHandler(grpcServer, svc)
+	grpc.NewGRPCHandler(grpcServer, svc, publisher)
 
 	<-ctx.Done()
 	log.Println("Shutting down the server...")
