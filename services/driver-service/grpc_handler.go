@@ -11,10 +11,10 @@ import (
 
 type gRPCHandler struct {
 	pb.UnimplementedDriverServiceServer
-	service Service
+	service *Service
 }
 
-func NewGRPCHandler(server *grpc.Server, service Service) *gRPCHandler {
+func NewGRPCHandler(server *grpc.Server, service *Service) *gRPCHandler {
 	handler := &gRPCHandler{
 		service: service,
 	}

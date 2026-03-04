@@ -15,17 +15,14 @@ type driverInMap struct {
 
 type Service struct {
 	drivers []*driverInMap
-	mu sync.RWMutex
+	mu      sync.RWMutex
 }
-
-
 
 func NewService() *Service {
 	return &Service{
 		drivers: make([]*driverInMap, 0),
 	}
 }
-
 
 func (s *Service) RegisterDriver(driverId string, packageSlug string) (*pb.Driver, error) {
 	s.mu.Lock()
@@ -40,10 +37,10 @@ func (s *Service) RegisterDriver(driverId string, packageSlug string) (*pb.Drive
 	geohash := geohash.Encode(randomRoute[0][0], randomRoute[0][1])
 
 	driver := &pb.Driver{
-		Id:       driverId,
-		Geohash:  geohash,
-		Location: &pb.Location{Latitude: randomRoute[0][0], Longitude: randomRoute[0][1]},
-		Name:     "Lando Norris",
+		Id:             driverId,
+		Geohash:        geohash,
+		Location:       &pb.Location{Latitude: randomRoute[0][0], Longitude: randomRoute[0][1]},
+		Name:           "Lando Norris",
 		PackageSlug:    packageSlug,
 		ProfilePicture: randomAvatar,
 		CarPlate:       randomPlate,
@@ -60,10 +57,26 @@ func (s *Service) UnRegisterDriver(driverId string) error {
 	defer s.mu.Unlock()
 
 	for i, driver := range s.drivers {
-		if driver.Driver.Id == driverId{
+		if driver.Driver.Id == driverId {
 			s.drivers = append(s.drivers[:i], s.drivers[i+1:]...)
 			break
 		}
 	}
 	return nil
+}
+
+func (s *Service) FindAvailableDrivers(packageType string) []string {
+	var matchingDrivers []string
+
+	for _, driver := range s.drivers {
+		if driver.Driver.PackageSlug == packageType {
+			matchingDrivers = append(matchingDrivers, driver.Driver.Id)
+		}
+	}
+
+	if len(matchingDrivers) == 0 {
+		return []string{}
+	}
+
+	return matchingDrivers
 }
