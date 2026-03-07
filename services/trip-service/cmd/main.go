@@ -34,7 +34,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	go func(){
+	go func() {
 		sigCh := make(chan os.Signal, 1)
 		signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
 		<-sigCh
@@ -55,11 +55,16 @@ func main() {
 
 	log.Println("Starting RabbitMQ connection")
 	publisher := events.NewTripEventPublisher(rabbitmq)
-	grpcServer := grpcserver.NewServer();
+
+	// Start driver consumer
+	driverConsumer := events.NewDriverConsumer(rabbitmq, svc)
+	go driverConsumer.Listen()
+
+	grpcServer := grpcserver.NewServer()
 
 	log.Printf("Starting grpc server trip service on port: %s", lis.Addr().String())
-	
-	go func(){
+
+	go func() {
 		if err := grpcServer.Serve(lis); err != nil {
 			log.Printf("failed to server: %v", err)
 			cancel()
@@ -85,7 +90,6 @@ func main() {
 	// err := server.ListenAndServe(); if err != nil {
 	// 	log.Printf("HTTP server error: %v", err)
 	// }
-
 
 	// for {
 	// 	time.Sleep(time.Second)
