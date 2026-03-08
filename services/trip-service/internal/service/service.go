@@ -101,8 +101,9 @@ func (s *service) GetAndValidateFare(ctx context.Context, fareID, userID string)
 		return nil, fmt.Errorf("failed to get trip fare: %w", err)
 	}
 
-	if fare != nil {
-		return nil, fmt.Errorf("trip fare is not exits: %w", err)
+	// Make sure the fare actually exists
+	if fare == nil {
+		return nil, fmt.Errorf("trip fare does not exist")
 	}
 
 	if userID != fare.UserID {

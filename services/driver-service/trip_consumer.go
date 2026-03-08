@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"math/rand"
 	"ride-sharing/shared/contracts"
 	"ride-sharing/shared/messaging"
 
@@ -18,6 +19,7 @@ type tripConsumer struct {
 func NewTripConsumer(rabbitmq *messaging.RabbitMQ, svc *Service) *tripConsumer {
 	return &tripConsumer{
 		rabbitmq: rabbitmq,
+		service:  svc,
 	}
 }
 
@@ -64,7 +66,10 @@ func (c *tripConsumer) handleFindAndNotifyDrivers(ctx context.Context, payload m
 		return nil
 	}
 
-	suitableDriverID := suitableIDs[0]
+	// Get a random index from the matching drivers
+	randomIndex := rand.Intn(len(suitableIDs))
+
+	suitableDriverID := suitableIDs[randomIndex]
 
 	marshalledEvent, err := json.Marshal(payload)
 	if err != nil {

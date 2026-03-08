@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: rabbitmq
-          image: rabbitmq:3-management
+          image: rabbitmq:3.13-management
           ports:
             - containerPort: 5672 # AMQP port
             - containerPort: 15672 # Management UI port
@@ -35,10 +35,10 @@ spec:
             failureThreshold: 5       # increase from 3
           resources:
             requests:
-              memory: "1Gi"
+              memory: "512Mi"
               cpu: "500m"
             limits:
-              memory: "2Gi"
+              memory: "512Mi"
               cpu: "1000m"
           env:
             - name: RABBITMQ_DEFAULT_USER
@@ -53,8 +53,6 @@ spec:
                   key: password
             - name: RABBITMQ_MNESIA_BASE
               value: /var/lib/rabbitmq/mnesia
-            - name: RABBITMQ_VM_MEMORY_HIGH_WATERMARK
-              value: "2GB"
           volumeMounts:
             - name: rabbitmq-data
               mountPath: /var/lib/rabbitmq
@@ -62,23 +60,7 @@ spec:
   - metadata:
       name: rabbitmq-data
     spec:
-      accessModes: [ "ReadWriteOnce" ]
+      accessModes: ["ReadWriteOnce"]
       resources:
         requests:
-          storage: 1Gi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: rabbitmq
-spec:
-  selector:
-    app: rabbitmq
-  ports:
-    - name: amqp
-      port: 5672
-      targetPort: 5672
-    - name: management
-      port: 15672
-      targetPort: 15672
-  type: ClusterIP
+          storage: 512Mi

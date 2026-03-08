@@ -11,31 +11,31 @@ import (
 
 type driverServiceClient struct {
 	Client pb.DriverServiceClient
-	conn *grpc.ClientConn
+	conn   *grpc.ClientConn
 }
 
 func NewDriverServiceClient() (*driverServiceClient, error) {
 	driverServiceURL := os.Getenv("DRIVER_SERVICE_URL")
-	
+
 	if driverServiceURL == "" {
-		driverServiceURL = "driver-service:9093"
+		driverServiceURL = "driver-service:9092"
 	}
 
 	// conn, err := grpc.NewClient(driverServiceURL)
 
 	conn, err := grpc.Dial(
-  		driverServiceURL,
-  		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		driverServiceURL,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
-		return  nil, err
+		return nil, err
 	}
 
 	client := pb.NewDriverServiceClient(conn)
 
-	return  &driverServiceClient{
+	return &driverServiceClient{
 		Client: client,
-		conn: conn,
+		conn:   conn,
 	}, nil
 }
 
